@@ -1,0 +1,30 @@
+
+
+
+
+
+
+
+use template deployment in azure to deploy ur custom templates
+
+
+
+
+
+
+
+  We can create a single JSON file for the whole project including vm,database etc but it's not the best choice
+  =>when there is an error it's easier maintain the template when resources are seperated. 
+
+
+  So the solution we can have a single main template and can call other secondary templates.json  
+
+
+  
+
+
+  
+   1)when you have a single template it needs to be in same resrouce group.
+   USING NESTED TEMPLATE on a single JSON file we can use more then one RG.
+
+  2)linked template=diff res group also but not a single json file, it's actually a main and a linked templates.
