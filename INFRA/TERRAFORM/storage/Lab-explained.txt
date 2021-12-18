@@ -1,0 +1,54 @@
+Lab - Terraform - Storage Account - Resources
+Lab - Terraform - Storage Account - Resources
+You can use the following as a reference for the previous chapter
+
+1. First you can create a file named storage.tf and add the following contents to the file
+
+Remember to change the name of the storage account, your subscription id and the tenant id in the terraform configuration file
+
+variable "storage_account_name" {
+    type=string
+    default="appstore50001"
+}
+ 
+variable "resource_group_name" {
+    type=string
+    default="terraform_grp"
+}
+ 
+provider "azurerm"{
+version = "=2.0"
+subscription_id = "20c6eec9-2d80-4700-b0f6-4fde579a8783"
+tenant_id       = "5f5f1c90-abac-4ebe-88d7-0f3d121f967e"
+features {}
+}
+ 
+resource "azurerm_resource_group" "grp" {
+  name     = var.resource_group_name
+  location = "North Europe"
+}
+ 
+resource "azurerm_storage_account" "store" {
+  name                     = var.storage_account_name
+  resource_group_name      = azurerm_resource_group.grp.name
+  location                 = azurerm_resource_group.grp.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+2. In Azure Cloud shell you can execute the following commands
+
+// See the current terraform version
+
+terraform --version
+
+// Initialize the terraform configuration
+
+terraform init
+
+// Create the terraform plan
+
+terraform plan -out storage.tfplan
+
+//Apply the terraform plan
+
+terraform apply "storage.tfplan"
