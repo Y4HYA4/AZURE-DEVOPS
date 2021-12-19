@@ -1,0 +1,63 @@
+Helm is a package manager, when u are havin a lot of yaml files....
+
+we need a chart which represent a helm of specific yaml files
+
+like we use inginx for .net apps as a package manager, here we use helm for k8s
+
+Working with Helm charts - Resources
+Working with Helm charts - Resources
+You can use the following information as a reference for the previous chapter
+
+// First ensure you have an Azure Kubernetes clusters in place
+
+// Set the context to your Kubernetes cluster
+
+az aks get-credentials --resource-group newgrp1 --name cluster1000
+
+// Ensure the helm client can fetch the pre-configured helm charts
+
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+
+// To see the pre-created charts or packages
+
+helm search repo stable
+
+// Install the mysql chart
+
+helm install app-sql stable/mysql
+
+You can use the following app.yml and service.yml files as reference for creating the helm chart
+
+app.yml file
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-image
+        image: nginx
+        ports:
+        - containerPort: 80
+service.yml file
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: my-app

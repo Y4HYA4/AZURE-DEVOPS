@@ -1,0 +1,12 @@
+{
+    $schema httpsschema.management.azure.comschemas2015-01-01deploymentParameters.json#,
+    contentVersion 1.0.0.0,
+    parameters {
+        applanName {
+            value stagingplan1000
+        },
+        applanSKU {
+            value Basic
+        }     
+    }
+}

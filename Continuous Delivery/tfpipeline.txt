@@ -1,0 +1,28 @@
+Lab - Azure Pipelines - Azure Terraform - Resources
+You can use the following information as a reference for the previous chapter.
+
+1. You can use the following YAML file for your build pipeline as a reference
+
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+trigger:
+- master
+ 
+pool:
+  vmImage: 'ubuntu-latest'
+ 
+steps:
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'drop'
+    publishLocation: 'pipeline'
+2. You can add the following to the Azure CLI task in the release pipeline. Just ensure to change the name of the storage account.
+
+az storage account create -g newgrp1 -n terraform10001 -l centralus --sku Standard_LRS
+az storage container create --name terraform --acount-name terraform10001 
+az storage account keys list -g newgrp1 --account-name terraform10001 --query "[0].value" --output tsv > temp.txt
+$content = Get-Content temp.txt -First 1
+$key = '"{0}"' -f $content

@@ -1,0 +1,29 @@
+Lab - Revision - Dockerize .Net core app - Resources
+Lab - Revision - Dockerize .Net core app
+
+
+You can use the following information as a reference for the previous chapter
+
+1. For the Dockerfile, put the following in a file with the name of Dockerfile
+
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1
+WORKDIR /app
+COPY  . .
+ENV ASPNETCORE_URLS http://*:80
+EXPOSE 80
+ENTRYPOINT ["dotnet", "docker-app.dll"]
+2. Next you can use the following commands
+
+// This is for publishing your .Net Core application from command prompt
+
+dotnet publish
+
+// This is for building your docker image
+
+sudo docker build -t dotnetapp .
+
+// This is for running your custom image as a container
+
+sudo docker run -d -p 80:80 dotnetapp
+
+3. The code is also attached as a resources to this chapter. This is a zip file. You can also use the simple ASP.Net Core based templates available in Visual Studio to create your web project

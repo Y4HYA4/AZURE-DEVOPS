@@ -1,0 +1,62 @@
+Lab - Azure Pipelines - Publish to Azure container registry - Resources
+Lab - Azure Pipelines - Publish to Azure container registry - Resources
+You can use the following information as a reference for the previous chapter
+
+1. For the Dockerfile, put the following in a file with the name of Dockerfile. Remember to place this as part of your code or upload it to your Azure Repos - Git repository
+
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
+WORKDIR /app
+ 
+# Copy csproj and restore as distinct layers
+COPY *.csproj ./
+RUN dotnet restore
+ 
+# Copy everything else and build
+COPY . ./
+RUN dotnet publish -c Release -o out
+ 
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+WORKDIR /app
+COPY --from=build-env /app/out .
+ENTRYPOINT ["dotnet", "docker-app.dll"]
+2. You can use the below YAML for reference for the build pipeline. But use the task wizard to add the Docker task , because this will create the service connection to the Azure Container registry
+
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+ 
+trigger:
+- master
+ 
+resources:
+- repo: self
+ 
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'dbe0a89e-bfa1-45ed-bc4a-4e587ae8f0c2'
+  imageRepository: 'dotnetapp'
+  containerRegistry: 'appregistry60001.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/dockerweb/Dockerfile'  
+  
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+ 
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          latest

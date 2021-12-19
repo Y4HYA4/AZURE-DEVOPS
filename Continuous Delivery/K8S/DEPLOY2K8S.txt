@@ -1,0 +1,36 @@
+Lab - Revision - Deploying to Kubernetes
+You can use the following information as a reference for the previous chapter
+
+1. For the app deployment, create a file called app.yml and add the following contents. Remember to change the name of the Azure container registry with the name of the registry you have created.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-image
+        image: appregistry1000.azurecr.io/dotnetapp
+        ports:
+        - containerPort: 80
+2. For the service deployment, create a file called service.yml and add the following contents
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: my-app

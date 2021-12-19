@@ -1,0 +1,42 @@
+Azure Release Pipelines - Implementing OWASP
+You can use the following information as a reference for the previous chapter. Remember to change the name of the storage account and container instance to make them unique
+
+1. The task for creating the resource group
+
+az group create -l centralus -n owasp_grp
+
+2. The task for creating the storage account
+
+az storage account create -g owasp_grp -n owaspstore1000 -l centralus --sku Standard_LRS
+az storage share create -n security --account-name owaspstore1000
+3. The task for creating the Azure container instance
+
+az storage account keys list -g owasp_grp --account-name owaspstore1000 --query "[0].value" --output tsv > temp.txt
+$content = Get-Content temp.txt -First 1
+$key = '"{0}"' -f $content
+ 
+echo "https://stagingapp1000.azurewebsites.net"> url.txt
+$url = Get-Content url.txt -First 1
+$completeurl = '"{0}"' -f $url
+ 
+$ZAP_COMMAND="/zap/zap-baseline.py -t $completeurl -x OWASP-ZAP-Report.xml"
+ 
+az container create -g owasp_grp -n owasp --image owasp/zap2docker-stable --ip-address public --ports 8080 --azure-file-volume-account-name owaspstore1000 --azure-file-volume-account-key $key --azure-file-volume-share-name security --azure-file-volume-mount-path /zap/wrk/ --command-line $ZAP_COMMAND
+4. The task for downloading the report
+
+az storage account keys list -g owasp_grp --account-name owaspstore1000 --query "[0].value" --output tsv > temp.txt
+$content = Get-Content temp.txt -First 1
+$key = '"{0}"' -f $content
+ 
+az storage file download --account-name owaspstore1000 --account-key $key -s security -p OWASP-ZAP-Report.xml --dest %SYSTEM_DEFAULTWORKINGDIRECTORY%\OWASP-ZAP-Report.xml
+5. The powershell task for converting the test report
+
+$XslPath = "$($Env:SYSTEM_DEFAULTWORKINGDIRECTORY)\_newapp1000\demoweb20000\OWASPToNUnit3.xslt"
+$XmlInputPath = "$($Env:SYSTEM_DEFAULTWORKINGDIRECTORY)\OWASP-ZAP-Report.xml"
+$XmlOutputPath = "$($Env:SYSTEM_DEFAULTWORKINGDIRECTORY)\Converted-OWASP-ZAP-Report.xml"
+$XslTransform = New-Object System.Xml.Xsl.XslCompiledTransform
+$XslTransform.Load($XslPath)
+$XslTransform.Transform($XmlInputPath, $XmlOutputPath)
+6. The OWASPToNUnit3.xslt file is attached as a resource to this chapter.
+
+7. A sample ASP.Net project is also available as a zip file to the chapter. You have to ensure it is uploaded to Azure repos and the OWASPToNUnit3.xslt file is part of the project.
